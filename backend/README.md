@@ -1,16 +1,28 @@
 # Investment Report Generator Backend
 
-Flask API that orchestrates the multi-agent investment analysis workflow and
-serves the React dashboard for interactive report generation.
+Flask API that coordinates the multi-agent Gemini workflow, persists the
+results, and serves the React dashboard for interactive analysis.
+
+## Highlights
+
+- **Team vs. Simple agents** – pick between the collaborative multi-agent
+	pipeline or a lightweight single-agent flow for quick takes.
+- **Persistent archive** – every run is stored in `backend/reports.db`
+	alongside generated Markdown/PDF artefacts in `reports/output/`.
+- **Retrieval-augmented chatbot** – conversational Q&A grounded in stored
+	reports using Gemini text embeddings.
+- **All-in-one UX** – the Flask app also serves the compiled React UI under the
+	same origin for easy deployment.
 
 ## Prerequisites
 
 - Python 3.11+ (tested with 3.13)
-- Node.js 18+ (for the web UI build tooling)
-- Google Gemini API key exposed as `GOOGLE_API_KEY` (or one of the aliases
-	listed in `config.py`)
+- Node.js 18+ (required once to build the frontend bundle)
+- A Google Gemini API key exposed as `GOOGLE_API_KEY` (or any of the aliases in
+	`config.py`)
+- _(Optional)_ Tavily API key (`TAVILY_API_KEY`) for enhanced research steps
 
-## Environment Setup
+## Backend Environment Setup
 
 ```powershell
 cd backend
@@ -19,15 +31,20 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-Create a `.env` file next to `config.py` and add at least your Gemini key:
+Create a `.env` file next to `config.py` and add your secrets:
 
 ```env
 GOOGLE_API_KEY=your-key-here
+# Optional, unlocks extended web research
+TAVILY_API_KEY=your-tavily-key
 ```
+
+The SQLite database (`reports.db`) is created automatically in the backend
+folder. Remove the file to reset history.
 
 ## Building the Frontend
 
-Build the React single-page app once so that Flask can serve it:
+The React single-page app is compiled once and then served by Flask:
 
 ```powershell
 cd ../frontend
@@ -35,7 +52,8 @@ npm install
 npm run build
 ```
 
-The compiled assets land in `frontend/dist/`, which `backend/server.py` serves.
+The build output lands in `frontend/dist/`, which `server.py` exposes under the
+root route.
 
 ## Running the Flask Server
 
@@ -44,25 +62,39 @@ cd ../backend
 python server.py
 ```
 
-The API and UI are now available at <http://localhost:5000>. Key endpoints:
+Visit <http://localhost:5000> for the full dashboard.
 
-- `POST /api/reports` — generate a new report (`mode` = `team` or `simple`)
-- `GET /api/reports` — list stored report metadata (id, ticker, preview)
-- `GET /api/reports/<id>` — fetch a specific report including full Markdown
-- `POST /api/chat` — converse with the finance chatbot grounded in stored reports via Gemini embeddings
-- `GET /api/reports/files` — raw filesystem listing (legacy / troubleshooting)
-- `GET /api/reports/files/<filename>` — download generated files
-- `GET /api/health` — lightweight readiness probe
+### API at a Glance
 
-### Developer Experience Shortcut
+- `POST /api/reports` – generate a report (`mode`: `team` or `simple`)
+- `GET /api/reports` – list stored report metadata with summaries & downloads
+- `GET /api/reports/<id>` – fetch a full Markdown payload for a specific report
+- `POST /api/chat` – ask the chatbot questions grounded in stored content
+- `GET /api/reports/files` – inspect the raw Markdown/PDF artefacts
+- `GET /api/reports/files/<filename>` – download a specific artefact
+- `GET /api/health` – lightweight readiness probe for monitoring
 
-For hot-reload during UI work, run Vite in dev mode (port 5173) and start the
-Flask server in another terminal. Set `VITE_API_URL=http://localhost:5000` when
-launching `npm run dev`, or rely on the default proxy configuration in
-`vite.config.js`.
+### Developer Experience Tips
 
-## Batch & CLI Modes
+- For rapid UI iteration, run Vite alongside Flask:
 
-The legacy terminal experiences remain available via `main.py` (multi-agent) and
-`main_simple.py` (single-agent). They share logic with the Flask endpoints, so
-environment setup is identical.
+	```powershell
+	cd frontend
+	npm run dev
+	```
+
+	The dev server proxies `/api/*` calls to `http://localhost:5000`. Override the
+	target by setting `VITE_API_URL` before launching Vite.
+
+- The CLI entry points (`main.py` for multi-agent, `main_simple.py` for single
+	agent) remain available and share the same environment configuration.
+
+## Troubleshooting
+
+- **Frontend showing 501 error** – build the SPA with `npm run build` so Flask
+	can serve `frontend/dist/`.
+- **Missing Gemini credentials** – ensure one of
+	`google_api_key/GOOGLE_API_KEY/YOUR_GOOGLE_API_KEY` is present in the
+	environment or `.env`.
+- **Resetting storage** – delete `backend/reports.db` and the contents of
+	`reports/output/` to clear history.
