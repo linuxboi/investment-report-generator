@@ -1,16 +1,42 @@
-# React + Vite
+# Investment Report Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Tailwind dashboard that consumes the Flask investment analysis API.
 
-Currently, two official plugins are available:
+## Quick Start
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```powershell
+cd frontend
+npm install
+```
 
-## React Compiler
+### Development Mode
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```powershell
+npm run dev
+```
 
-## Expanding the ESLint configuration
+The dev server runs on <http://localhost:5173>. API calls to `/api/*` are
+proxied to `http://localhost:5000`, so make sure the Flask server is running.
+Override the backend origin by setting `VITE_API_URL` before starting Vite.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Production Build
+
+```powershell
+npm run build
+```
+
+The compiled assets appear in `frontend/dist/`. Serve them via Flask by running
+`python backend/server.py`; static files are delivered automatically.
+
+## Environment Variables
+
+- `VITE_API_URL` (optional): Explicit backend base URL. Defaults to
+	`http://localhost:5000` in dev and same-origin in production.
+
+## Key Features
+
+- Interactive form to trigger multi-agent (team) or single-agent analyses
+- Live status updates and rich Markdown preview
+- Download links for generated Markdown/PDF artefacts
+- Saved artefacts list backed by the Flask `/api/reports` endpoint
+- Embedded finance chatbot that cites report excerpts via `/api/chat`

@@ -197,10 +197,14 @@ def generate_investment_report_simple(ticker: str, company_name: str = None, sav
     if result is None:
         raise Exception("Analysis failed: No result returned after retries")
     
+    markdown_path = None
+    pdf_path = None
+
     # Save report if requested
     if save_to_file:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         md_filename = f"reports/output/{ticker}_simple_report_{timestamp}.md"
+
         
         # Create directory if it doesn't exist
         os.makedirs("reports/output", exist_ok=True)
@@ -214,12 +218,14 @@ def generate_investment_report_simple(ticker: str, company_name: str = None, sav
             f.write(result.content)
         
         print(f"💾 Markdown report saved to: {md_filename}")
+        markdown_path = md_filename
         
         # Generate PDF version
         try:
             print("📄 Generating professional PDF report...")
             pdf_filename = generate_pdf_report(ticker, company_name, result.content)
             print(f"✅ PDF report saved to: {pdf_filename}\n")
+            pdf_path = pdf_filename
         except Exception as e:
             print(f"⚠️  PDF generation failed: {str(e)}")
             print(f"   Markdown report is still available at: {md_filename}\n")
@@ -227,7 +233,10 @@ def generate_investment_report_simple(ticker: str, company_name: str = None, sav
     return {
         "ticker": ticker,
         "analysis": result.content,
-        "timestamp": datetime.now().isoformat()
+        "company_name": company_name,
+        "timestamp": datetime.now().isoformat(),
+        "markdown_path": markdown_path,
+        "pdf_path": pdf_path,
     }
 
 def display_menu():

@@ -1,0 +1,7 @@
+agno
+flask
+flask-cors
+numpy
+python-dotenv
+reportlab
+google-generativeai
