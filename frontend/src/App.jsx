@@ -10,13 +10,15 @@ const PRESET_TICKERS = [
 ]
 
 const DEV_BACKEND_URL = 'https://investment-report-generator-b2dnamhhcnh3d2c4.francecentral-01.azurewebsites.net/'
+const PROD_BACKEND_URL = 'https://investment-report-generator-b2dnamhhcnh3d2c4.francecentral-01.azurewebsites.net/'
 
 const DEFAULT_API_BASE_URL = (() => {
   const configured = import.meta.env.VITE_API_URL?.trim()
   if (configured) {
     return configured.replace(/\/$/, '')
   }
-  return import.meta.env.DEV ? DEV_BACKEND_URL : ''
+  const fallback = import.meta.env.DEV ? DEV_BACKEND_URL : PROD_BACKEND_URL
+  return fallback.replace(/\/$/, '')
 })()
 
 const markdownComponents = {

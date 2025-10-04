@@ -30,8 +30,11 @@ The compiled assets appear in `frontend/dist/`. Serve them via Flask by running
 
 ## Environment Variables
 
-- `VITE_API_URL` (optional): Explicit backend base URL. Defaults to
-	`http://localhost:5000` in dev and same-origin in production.
+- `VITE_API_URL` (optional): Explicit backend base URL. Defaults to the
+	Azure App Service endpoint in production builds and the same value during
+	local development. Override this when running a local backend (e.g.
+	`http://localhost:5000`) or when hosting the SPA on a different domain such
+	as Vercel.
 
 ## Key Features
 
