@@ -9,7 +9,7 @@ const PRESET_TICKERS = [
   { label: 'Tesla', value: 'TSLA' },
 ]
 
-const DEV_BACKEND_URL = 'http://localhost:5000'
+const DEV_BACKEND_URL = 'https://investment-report-generator-b2dnamhhcnh3d2c4.francecentral-01.azurewebsites.net/'
 
 const DEFAULT_API_BASE_URL = (() => {
   const configured = import.meta.env.VITE_API_URL?.trim()
