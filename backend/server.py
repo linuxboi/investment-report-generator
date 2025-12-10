@@ -12,7 +12,7 @@ from flask_cors import CORS
 from werkzeug.exceptions import BadRequest
 
 from main import generate_investment_report_with_team
-from main_simple import generate_investment_report_simple
+
 from report_store import (
     get_report_record,
     init_db as init_report_store,
@@ -137,15 +137,6 @@ def download_report_file(filename: str):
     return send_from_directory(REPORTS_DIR, filename, as_attachment=True)
 
 
-def _normalise_mode(raw_mode: str) -> str:
-    candidate = raw_mode.strip().lower()
-    if candidate in {"team", "multi", "advanced", "full"}:
-        return "team"
-    if candidate in {"simple", "single", "lite"}:
-        return "simple"
-    raise BadRequest("Mode must be 'team' or 'simple'.")
-
-
 @app.post("/api/reports")
 def create_report():
     """Generate a new investment report using the configured agents."""
@@ -159,43 +150,24 @@ def create_report():
     if company_name is not None:
         company_name = str(company_name).strip() or None
 
-    raw_mode = str(payload.get("mode", "team"))
-    mode = _normalise_mode(raw_mode)
     save_to_file = bool(payload.get("saveToFile", True))
-
     normalised_ticker = ticker.upper()
 
     try:
-        if mode == "team":
-            result = generate_investment_report_with_team(
-                ticker=normalised_ticker,
-                company_name=company_name,
-                save_to_file=save_to_file,
-            )
-            payload_out: Dict[str, Any] = {
-                "ticker": result["ticker"],
-                "companyName": result.get("company_name"),
-                "timestamp": result["timestamp"],
-                "mode": "team",
-                "reportMarkdown": result["report_markdown"],
-                "markdownPath": result.get("markdown_path"),
-                "pdfPath": result.get("pdf_path"),
-            }
-        else:
-            result = generate_investment_report_simple(
-                ticker=normalised_ticker,
-                company_name=company_name,
-                save_to_file=save_to_file,
-            )
-            payload_out = {
-                "ticker": result["ticker"],
-                "companyName": result.get("company_name"),
-                "timestamp": result["timestamp"],
-                "mode": "simple",
-                "reportMarkdown": result["analysis"],
-                "markdownPath": result.get("markdown_path"),
-                "pdfPath": result.get("pdf_path"),
-            }
+        result = generate_investment_report_with_team(
+            ticker=normalised_ticker,
+            company_name=company_name,
+            save_to_file=save_to_file,
+        )
+        payload_out: Dict[str, Any] = {
+            "ticker": result["ticker"],
+            "companyName": result.get("company_name"),
+            "timestamp": result["timestamp"],
+            "mode": "team",
+            "reportMarkdown": result["report_markdown"],
+            "markdownPath": result.get("markdown_path"),
+            "pdfPath": result.get("pdf_path"),
+        }
     except Exception as exc:  # pragma: no cover - defensive logging for runtime issues
         app.logger.exception("Failed to generate report for %s", normalised_ticker)
         return jsonify({"error": str(exc)}), 500
@@ -224,8 +196,7 @@ def create_report():
     )
 
     app.logger.info(
-        "Generated %s report for %s (company=%s, saved=%s)",
-        mode,
+        "Generated team report for %s (company=%s, saved=%s)",
         normalised_ticker,
         company_name or "N/A",
         save_to_file,

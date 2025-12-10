@@ -5,3 +5,9 @@ numpy
 python-dotenv
 reportlab
 google-generativeai
+google-genai
+yfinance
+duckduckgo-search
+gunicorn
+ddgs
+tavily-python

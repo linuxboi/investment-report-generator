@@ -1,0 +1,45 @@
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# Environment files (secrets should be set in Azure)
+.env
+.env.local
+.env.*.local
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Database files (use Azure managed database instead)
+*.db
+*.sqlite3
+
+# Generated reports (ephemeral data)
+reports/*.pdf
+
+# Test files
+tests/
+pytest_cache/
+.coverage
+
+# Documentation
+*.md
+!README.md
+
+# OS files
+.DS_Store
+Thumbs.db
